@@ -42,8 +42,11 @@ func (r *RepositoryReconciler) handleDeletion(ctx context.Context, repository *v
 		return err
 	}
 
-	if err := r.GitClient.DeleteRepo(ctx, repository.Spec.Organization, repository.Name); err != nil {
-		return err
+	if r.ActualDelete {
+		r.Log.Info("actual delete true", "deleting", fmt.Sprintf("%s/%s", repository.Spec.Organization, repository.Name))
+		if err := r.GitClient.DeleteRepo(ctx, repository.Spec.Organization, repository.Name); err != nil {
+			return err
+		}
 	}
 
 	repository.ObjectMeta.Finalizers = removeString(repository.ObjectMeta.Finalizers, repoFinalizerName)

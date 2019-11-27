@@ -38,10 +38,11 @@ var (
 
 // RepositoryReconciler reconciles a Repository object
 type RepositoryReconciler struct {
-	Client    client.Client
-	Log       logr.Logger
-	Scheme    *runtime.Scheme
-	GitClient git.Client
+	Client       client.Client
+	Log          logr.Logger
+	Scheme       *runtime.Scheme
+	GitClient    git.Client
+	ActualDelete bool
 }
 
 // +kubebuilder:rbac:groups=github.go.hein.dev,resources=repositories,verbs=get;list;watch;create;update;patch;delete

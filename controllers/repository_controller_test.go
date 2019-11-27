@@ -79,6 +79,22 @@ var _ = Describe("Run Controller", func() {
 				k8sClient.Get(context.Background(), repokey, r)
 				return r.Status.Status == v1alpha1.SyncedStatus
 			}, timeout, interval).Should(BeTrue())
+
+			By("Describing Getting the final status updates")
+			Eventually(func() bool {
+				r := &v1alpha1.Repository{}
+				k8sClient.Get(context.Background(), repokey, r)
+				return r.Status.WatchersCount == 0
+			}, timeout, interval).Should(BeTrue())
+
+			Expect(k8sClient.Delete(context.Background(), repo)).Should(Succeed())
+
+			By("Describing deletion state")
+			Eventually(func() bool {
+				r := &v1alpha1.Repository{}
+				k8sClient.Get(context.Background(), repokey, r)
+				return len(r.GetFinalizers()) == 0
+			}, timeout, interval).Should(BeTrue())
 		})
 	})
 })

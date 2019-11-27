@@ -27,6 +27,7 @@ spec:
         - /manager
         args:
         - --enable-leader-election
+        - --actual-delete=false
         image: controller:latest
         env:
         - name: GITHUB_AUTH_TOKEN
