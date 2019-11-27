@@ -1,0 +1,14 @@
+apiVersion: github.go.hein.dev/v1alpha1
+kind: Repository
+metadata:
+  name: repository-sample
+spec:
+  organization: awsctrl
+  description: Sample repository created with the Github Controller
+  homepage: awsctrl.io/repository-sample
+  settings:
+    private: false
+    issues: true
+    wiki: false
+    projects: true
+    template: false

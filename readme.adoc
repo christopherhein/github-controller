@@ -1,0 +1,60 @@
+= Github Controller
+:toc: macro
+
+[cols="a,a,a,a,a"]
+|===
+| *API Version* | *Build Status* | *Test Coverage* | *Go Report Card* | *License* 
+| image::https://img.shields.io/badge/apiversion-v1alpha1-red.svg[link="https://github.com/christopherhein/github-controller/blob/master/LICENSE"] | image::https://travis-ci.com/christopherhein/github-controller.svg?branch=master[link="https://travis-ci.com/christopherhein/github-controller"] | image::https://codecov.io/gh/christopherhein/github-controller/branch/master/graph/badge.svg[link="https://codecov.io/gh/christopherhein/github-controller"] | image::https://goreportcard.com/badge/github.com/christopherhein/github-controller[link="https://goreportcard.com/report/github.com/christopherhein/github-controller"] | image::https://img.shields.io/badge/license-Apache%202.0-blue.svg[link="https://github.com/christopherhein/github-controller/blob/master/LICENSE"]
+|===
+
+toc::[]
+
+Github Controller is a Kubernetes controller which implements the Kubernetes Resource Model to manage Github repositories, organizations and collaborators. This does so by implementing link:https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions/[custom resource definitions (CRDs)] for `Repository`, (_**Coming Soon**_ `Organization`, and `Team`).
+
+== Features
+
+* `Repository` will manage Github repositories
+* Control settings for repositories `issues`, `pull requests`, `wiki`
+* Records status of the repo
+
+== Installation
+
+.Terminal
+[source,shell]
+----
+git clone git@github.com:christopherhein/github-controller.git
+cd github-controller
+make install deploy
+----
+
+The `manager` expects that you have `GITHUB_AUTH_TOKEN` exported into the secret named `github-controller-github-auth-token` with a `key` of `github-token`. This token should have permissions to manage repositories in the github org it's managing.
+
+== Usage
+
+If you want to create a repo you can `kubectl apply -f` a manifest that looks like this.
+
+.vim
+[source,yaml]
+----
+apiVersion: github.go.hein.dev/v1alpha1
+kind: Repository
+metadata:
+  name: repository-sample
+spec:
+  organization: awsctrl
+  description: Sample repository created with the Github Controller
+  homepage: awsctrl.io/repository-sample
+  settings:
+    private: false
+    issues: true
+    wiki: false
+    projects: true
+    template: false
+----
+
+== Roadmap
+
+* Support for updating repos
+* Add ability to manage `user` accounts instead of `org` only accounts.
+* Support for Repo Templates
+* Support for managing teams

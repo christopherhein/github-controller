@@ -1,0 +1,7 @@
+domain: go.hein.dev
+repo: go.hein.dev/github-controller
+resources:
+- group: github
+  kind: Repository
+  version: v1alpha1
+version: "2"

@@ -1,0 +1,24 @@
+language: go
+
+go:
+- 1.13
+
+env:
+- GO111MODULE=on
+
+branches:
+  only:
+  - master
+
+install:
+- |
+  set -e
+  make install-ci
+ 
+script:
+- |
+  set -e
+  make test
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
