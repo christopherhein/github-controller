@@ -88,10 +88,11 @@ var _ = BeforeSuite(func(done Done) {
 	gitclient := git.TestClient()
 
 	err = (&RepositoryReconciler{
-		Client:    k8sManager.GetClient(),
-		Log:       ctrl.Log.WithName("controllers").WithName("Repository"),
-		Scheme:    k8sManager.GetScheme(),
-		GitClient: gitclient,
+		Client:       k8sManager.GetClient(),
+		Log:          ctrl.Log.WithName("controllers").WithName("Repository"),
+		Scheme:       k8sManager.GetScheme(),
+		GitClient:    gitclient,
+		ActualDelete: true,
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 

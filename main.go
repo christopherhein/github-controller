@@ -49,9 +49,12 @@ func main() {
 	var resyncTimeout = time.Minute * 30
 	var metricsAddr string
 	var enableLeaderElection bool
+	var actualDelete bool
 	flag.StringVar(&metricsAddr, "metrics-addr", ":8080", "The address the metric endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "enable-leader-election", false,
 		"Enable leader election for controller manager. Enabling this will ensure there is only one active controller manager.")
+	flag.BoolVar(&actualDelete, "actual-delete", false, "default: false; when true it will actually delete repos when the manifest is deleted.")
+
 	flag.Parse()
 
 	ctrl.SetLogger(zap.New(func(o *zap.Options) {
@@ -73,10 +76,11 @@ func main() {
 	}
 
 	if err = (&controllers.RepositoryReconciler{
-		Client:    mgr.GetClient(),
-		Log:       ctrl.Log.WithName("controllers").WithName("Repository"),
-		Scheme:    mgr.GetScheme(),
-		GitClient: gitclient,
+		Client:       mgr.GetClient(),
+		Log:          ctrl.Log.WithName("controllers").WithName("Repository"),
+		Scheme:       mgr.GetScheme(),
+		GitClient:    gitclient,
+		ActualDelete: actualDelete,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Repository")
 		os.Exit(1)
