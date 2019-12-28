@@ -41,9 +41,9 @@ kind: Repository
 metadata:
   name: repository-sample
 spec:
-  organization: awsctrl
+  organization: orgname
   description: Sample repository created with the Github Controller
-  homepage: awsctrl.io/repository-sample
+  homepage: org.com/repository-sample
   settings:
     private: false
     issues: true
