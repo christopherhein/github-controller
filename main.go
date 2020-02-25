@@ -20,39 +20,39 @@ import (
 	"context"
 	"flag"
 	"os"
-	"time"
 
 	githubv1alpha1 "go.hein.dev/github-controller/api/v1alpha1"
 	"go.hein.dev/github-controller/controllers"
 	"go.hein.dev/github-controller/git"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/serializer"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	ctrl "sigs.k8s.io/controller-runtime"
+	defaultv1alpha1 "sigs.k8s.io/controller-runtime/pkg/api/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+	"sigs.k8s.io/controller-runtime/pkg/manager"
 	// +kubebuilder:scaffold:imports
 )
 
 var (
 	scheme   = runtime.NewScheme()
+	codecs   = serializer.NewCodecFactory(scheme)
 	setupLog = ctrl.Log.WithName("setup")
 )
 
 func init() {
-	_ = clientgoscheme.AddToScheme(scheme)
-
-	_ = githubv1alpha1.AddToScheme(scheme)
+	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
+	utilruntime.Must(githubv1alpha1.AddToScheme(scheme))
+	utilruntime.Must(scheme.SetVersionPriority(githubv1alpha1.GroupVersion))
 	// +kubebuilder:scaffold:scheme
 }
 
 func main() {
-	var resyncTimeout = time.Minute * 30
-	var metricsAddr string
-	var enableLeaderElection bool
+	var configfile string
 	var actualDelete bool
-	flag.StringVar(&metricsAddr, "metrics-addr", ":8080", "The address the metric endpoint binds to.")
-	flag.BoolVar(&enableLeaderElection, "enable-leader-election", false,
-		"Enable leader election for controller manager. Enabling this will ensure there is only one active controller manager.")
+	flag.StringVar(&configfile, "config-file", "./config.yaml", "Config file for loading configurations.")
 	flag.BoolVar(&actualDelete, "actual-delete", false, "default: false; when true it will actually delete repos when the manifest is deleted.")
 
 	flag.Parse()
@@ -63,15 +63,23 @@ func main() {
 
 	gitclient := git.New(context.Background(), os.Getenv("GITHUB_AUTH_TOKEN"))
 
-	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
-		Scheme:             scheme,
-		MetricsBindAddress: metricsAddr,
-		LeaderElection:     enableLeaderElection,
-		Port:               9443,
-		SyncPeriod:         &resyncTimeout,
-	})
+	// mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
+	// 	Scheme:             scheme,
+	// 	MetricsBindAddress: metricsAddr,
+	// 	LeaderElection:     enableLeaderElection,
+	// 	Port:               9443,
+	// 	SyncPeriod:         &resyncTimeout,
+	// })
+	// componentconfig := &githubv1alpha1.GithubControllerConfiguration{}
+	componentconfig := &defaultv1alpha1.DefaultControllerConfiguration{}
+	if err := manager.DecodeComponentConfigFileInto(codecs, configfile, componentconfig); err != nil {
+		setupLog.Error(err, "unable to load config", "file", configfile)
+		os.Exit(1)
+	}
+
+	mgr, err := ctrl.NewManagerFromComponentConfig(ctrl.GetConfigOrDie(), scheme, componentconfig)
 	if err != nil {
-		setupLog.Error(err, "unable to start manager")
+		setupLog.Error(err, "unable to create manager")
 		os.Exit(1)
 	}
 
