@@ -10,6 +10,7 @@ rules:
   - github.go.hein.dev
   resources:
   - repositories
+  - keys
   verbs:
   - create
   - delete
@@ -22,6 +23,7 @@ rules:
   - github.go.hein.dev
   resources:
   - repositories/status
+  - keys/status
   verbs:
   - get
   - patch

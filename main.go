@@ -22,15 +22,14 @@ import (
 	"os"
 	"time"
 
+	githubv1alpha1 "go.hein.dev/github-controller/api/v1alpha1"
+	"go.hein.dev/github-controller/controllers"
+	"go.hein.dev/github-controller/git"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
-
-	githubv1alpha1 "go.hein.dev/github-controller/api/v1alpha1"
-	"go.hein.dev/github-controller/controllers"
-	"go.hein.dev/github-controller/git"
 	// +kubebuilder:scaffold:imports
 )
 
