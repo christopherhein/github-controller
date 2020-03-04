@@ -9,7 +9,6 @@ rules:
 - apiGroups:
   - github.go.hein.dev
   resources:
-  - repositories
   - keys
   verbs:
   - create
@@ -22,8 +21,27 @@ rules:
 - apiGroups:
   - github.go.hein.dev
   resources:
-  - repositories/status
   - keys/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - github.go.hein.dev
+  resources:
+  - repositories
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - github.go.hein.dev
+  resources:
+  - repositories/status
   verbs:
   - get
   - patch
