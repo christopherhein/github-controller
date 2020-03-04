@@ -1,0 +1,7 @@
+apiVersion: github.go.hein.dev/v1alpha1
+kind: Key
+metadata:
+  name: key-sample
+spec:
+  # Add fields here
+  foo: bar

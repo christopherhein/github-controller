@@ -22,14 +22,15 @@ import (
 	"os"
 	"time"
 
-	githubv1alpha1 "go.hein.dev/github-controller/api/v1alpha1"
-	"go.hein.dev/github-controller/controllers"
-	"go.hein.dev/github-controller/git"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+
+	githubv1alpha1 "go.hein.dev/github-controller/api/v1alpha1"
+	"go.hein.dev/github-controller/controllers"
+	"go.hein.dev/github-controller/git"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -83,6 +84,14 @@ func main() {
 		ActualDelete: actualDelete,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Repository")
+		os.Exit(1)
+	}
+	if err = (&controllers.KeyReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("Key"),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Key")
 		os.Exit(1)
 	}
 	// +kubebuilder:scaffold:builder
