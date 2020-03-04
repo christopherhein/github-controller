@@ -22,6 +22,8 @@ import (
 	"fmt"
 	"net/http"
 
+	corev1 "k8s.io/api/core/v1"
+
 	"github.com/google/go-github/v28/github"
 	"go.hein.dev/github-controller/api/v1alpha1"
 )
@@ -29,19 +31,21 @@ import (
 // TestClient will generate a test stub
 func TestClient() Client {
 	return &testclient{
-		created: false,
-		deleted: false,
+		RepositoryCreated: false,
+		RepositoryDeleted: false,
 	}
 }
 
 type testclient struct {
-	deleted bool
-	created bool
+	IdCounter         int64
+	RepositoryCreated bool
+	RepositoryDeleted bool
+	KeyCreated        bool
+	KeyDeleted        bool
 }
 
-// GetRepo will reachout to Github and create the repo
 func (in *testclient) GetRepo(ctx context.Context, org, name string) (*github.Repository, *github.Response, error) {
-	if in.created {
+	if in.RepositoryCreated {
 		resp := &github.Response{
 			Response: &http.Response{StatusCode: http.StatusOK},
 		}
@@ -53,15 +57,52 @@ func (in *testclient) GetRepo(ctx context.Context, org, name string) (*github.Re
 	return &github.Repository{}, resp, fmt.Errorf("not found")
 }
 
-// CreateRepo will reachout to Github and create the repo
 func (in *testclient) CreateRepo(ctx context.Context, org string, repo *v1alpha1.Repository) error {
-	in.created = true
-	in.deleted = false
+	in.RepositoryCreated = true
+	in.RepositoryDeleted = false
 	return nil
 }
 
 func (in *testclient) DeleteRepo(ctx context.Context, org, name string) error {
-	in.created = true
-	in.deleted = true
+	in.RepositoryCreated = true
+	in.RepositoryDeleted = true
+	return nil
+}
+
+func (in *testclient) GetKey(ctx context.Context, org, repoName string, keyID int64) (*github.Key, *github.Response, error) {
+	if in.KeyCreated {
+		resp := &github.Response{
+			Response: &http.Response{StatusCode: http.StatusOK},
+		}
+		return &github.Key{}, resp, nil
+	}
+	resp := &github.Response{
+		Response: &http.Response{StatusCode: http.StatusNotFound},
+	}
+	return &github.Key{}, resp, fmt.Errorf("not found")
+}
+
+func (in *testclient) CreateKey(ctx context.Context, org, repoName string, key *v1alpha1.Key, _ *corev1.Secret) (*github.Key, error) {
+	in.KeyCreated = true
+	in.KeyDeleted = false
+
+	in.IdCounter++
+
+	id := in.IdCounter
+	title := "test-key"
+	keyStr := "ssh-rsa test1234"
+	readOnly := true
+	return &github.Key{
+			ID:       &id,
+			Title:    &title,
+			Key:      &keyStr,
+			ReadOnly: &readOnly,
+		},
+		nil
+}
+
+func (in *testclient) DeleteKey(ctx context.Context, org, name string, keyID int64) error {
+	in.KeyCreated = true
+	in.KeyDeleted = true
 	return nil
 }

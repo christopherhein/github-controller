@@ -20,25 +20,83 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-
 // KeySpec defines the desired state of Key
 type KeySpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	// +optional
+	// ReadOnly determines whether the key has write access to the repository
+	ReadOnly bool `json:"readOnly"`
 
-	// Foo is an example field of Key. Edit Key_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	// +kubebuilder:validation:MaxLength 253
+	// RepositoryRef points to a Repository in the same Namespace that the Key is for
+	RepositoryRef string `json:"repositoryRef"`
+
+	// +optional
+	// SecretTemplate sets annotations and labels on the resulting Secret of this Key
+	SecretTemplate KeySecretTemplate `json:"secretTemplate,omitempty"`
+}
+
+// KeySecretTemplate is a template for creating Secrets that hold Key data
+type KeySecretTemplate struct {
+	// Map of string keys and values that can be used to organize and categorize
+	// (scope and select) objects. May match selectors of replication controllers
+	// and services.
+	// More info: http://kubernetes.io/docs/user-guide/labels
+	// +optional
+	Labels map[string]string `json:"labels,omitempty" protobuf:"bytes,11,rep,name=labels"`
+
+	// Annotations is an unstructured key value map stored with a resource that may be
+	// set by external tools to store and retrieve arbitrary metadata. They are not
+	// queryable and should be preserved when modifying objects.
+	// More info: http://kubernetes.io/docs/user-guide/annotations
+	// +optional
+	Annotations map[string]string `json:"annotations,omitempty" protobuf:"bytes,12,rep,name=annotations"`
+
+	// TargetNamespace optionally specifies the namespace the Key Secret is provisioned to
+	// The default behavior results in a Secret namespace matching the metadata.namespace of the Key object
+	// This can be used to achieve a "namespace delegation" pattern
+	TargetNamespace string `json:"targetNamespace,omitempty"`
+
+	// NameOverride optionally specifies the name the Key Secret
+	// The default behavior results in a Secret name matching metadata.name of the Key object
+	// For example, this can be used in combination with `targetNamespace` to place multiple
+	// Secrets of the same name into different Namespaces from the same managing Namespace.
+	NameOverride string `json:"nameOverride,omitempty"`
 }
 
 // KeyStatus defines the observed state of Key
 type KeyStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	// +optional
+	// Status stores the status of the Key
+	Status StatusReason `json:"status,omitempty"`
+
+	// +optional
+	// URL stores the URL of the Key
+	URL string `json:"url,omitempty"`
+
+	// +optional
+	// GitHubKeyID stores the GitHub API ID of the Key.
+	// It is used to ensure deletion of the proper GitHub API Object.
+	GitHubKeyID int64 `json:"gitHubKeyID,omitempty"`
+
+	// +optional
+	// GitHubRepository stores the current repository the key is applicable for.
+	// It is used to ensure proper deletion in absence of a valid `KeySpec.RepositoryRef`.
+	GitHubRepository string `json:"gitHubRepository,omitempty"`
+
+	// +optional
+	// GitHubOrganization stores the current organization expected to contain the applicable repository.
+	// It is used to ensure proper deletion in absence of a valid `KeySpec.RepositoryRef`.
+	GitHubOrganization string `json:"gitHubOrganization,omitempty"`
+
+	// +optional
+	// PublicKey holds the key contents matching the SSH private key.
+	// It is used by the Key controller to track correctness of the child Secret object.
+	PublicKey string `json:"publicKey"`
 }
 
 // +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:JSONPath=.status.status,description="Status of the Key",name=Status,priority=0,type=string
 
 // Key is the Schema for the keys API
 type Key struct {

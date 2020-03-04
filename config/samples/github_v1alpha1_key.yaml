@@ -3,5 +3,14 @@ kind: Key
 metadata:
   name: key-sample
 spec:
-  # Add fields here
-  foo: bar
+  readOnly: true
+  repositoryRef: repository-sample
+  secretTemplate:
+    nameOverride: key-sample-override
+    targetNamespace: default
+    labels:
+      label.a: one
+      label.b: two
+    annotations:
+      note.a: one
+      note.b: two
