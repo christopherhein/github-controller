@@ -6,6 +6,13 @@ metadata:
   creationTimestamp: null
   name: manager-role
 rules:
+- resources:
+  - secrets
+  verbs:
+  - create
+  - get
+  - list
+  - watch
 - apiGroups:
   - github.go.hein.dev
   resources:

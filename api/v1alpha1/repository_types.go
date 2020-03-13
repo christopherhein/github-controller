@@ -73,6 +73,9 @@ const (
 	// CreatingStatus means the repository is in creating status
 	CreatingStatus StatusReason = "Creating"
 
+	// WaitingStatus means the repository is in waiting status
+	WaitingStatus StatusReason = "Waiting"
+
 	// UpdatingStatus means the repository is in updating status
 	UpdatingStatus StatusReason = "Updating"
 

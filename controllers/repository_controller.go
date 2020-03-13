@@ -103,7 +103,7 @@ func (r *RepositoryReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 
 	// TODO: (christopherhein) Update Repo Checks
 
-	if err := r.updateRepositoryStatus(ctx, repo, &repository); err != nil {
+	if err := r.updateRepositoryStatusDetails(ctx, repo, &repository); err != nil {
 		return ctrl.Result{}, err
 	}
 

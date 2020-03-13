@@ -53,7 +53,7 @@ func main() {
 	flag.StringVar(&metricsAddr, "metrics-addr", ":8080", "The address the metric endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "enable-leader-election", false,
 		"Enable leader election for controller manager. Enabling this will ensure there is only one active controller manager.")
-	flag.BoolVar(&actualDelete, "actual-delete", false, "default: false; when true it will actually delete repos when the manifest is deleted.")
+	flag.BoolVar(&actualDelete, "actual-delete", false, "default: false; when true it will actually delete repos/keys when the object is deleted.")
 
 	flag.Parse()
 
@@ -86,9 +86,11 @@ func main() {
 		os.Exit(1)
 	}
 	if err = (&controllers.KeyReconciler{
-		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("Key"),
-		Scheme: mgr.GetScheme(),
+		Client:       mgr.GetClient(),
+		Log:          ctrl.Log.WithName("controllers").WithName("Key"),
+		Scheme:       mgr.GetScheme(),
+		GitClient:    gitclient,
+		ActualDelete: actualDelete,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Key")
 		os.Exit(1)
