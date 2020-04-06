@@ -16,4 +16,4 @@ require (
 	sigs.k8s.io/structured-merge-diff v0.0.0-20190525122527-15d366b2352e // indirect
 )
 
-replace sigs.k8s.io/controller-runtime => ../../sigs.k8s.io/controller-runtime
+replace sigs.k8s.io/controller-runtime => go.hein.dev/controller-runtime v0.4.1-0.20200408104450-cef7fb64b6cd
