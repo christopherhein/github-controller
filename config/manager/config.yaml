@@ -1,0 +1,12 @@
+apiVersion: config.go.hein.dev/v1
+kind: GithubConfiguration
+spec:
+  port: 9443
+  metricsBindAddress: ":8081"
+  leaderElection:
+    leaderElect: true
+    resourceName: foo
+    resourceNamespace: default
+    renewDeadline: 10m
+    leaseDuration: 1h
+    retryPeriod: 2m

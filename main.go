@@ -20,15 +20,16 @@ import (
 	"context"
 	"flag"
 	"os"
-	"time"
 
 	githubv1alpha1 "go.hein.dev/github-controller/api/v1alpha1"
 	"go.hein.dev/github-controller/controllers"
 	"go.hein.dev/github-controller/git"
 	"k8s.io/apimachinery/pkg/runtime"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	ctrl "sigs.k8s.io/controller-runtime"
+	ctrlv1alpha1 "sigs.k8s.io/controller-runtime/pkg/api/config/v1alpha1"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	// +kubebuilder:scaffold:imports
 )
@@ -39,21 +40,24 @@ var (
 )
 
 func init() {
-	_ = clientgoscheme.AddToScheme(scheme)
-
-	_ = githubv1alpha1.AddToScheme(scheme)
+	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
+	utilruntime.Must(ctrlv1alpha1.AddToScheme(scheme))
+	utilruntime.Must(githubv1alpha1.AddToScheme(scheme))
 	// +kubebuilder:scaffold:scheme
 }
 
 func main() {
-	var resyncTimeout = time.Minute * 30
+	var port int
 	var metricsAddr string
 	var enableLeaderElection bool
 	var actualDelete bool
+	var config string
 	flag.StringVar(&metricsAddr, "metrics-addr", ":8080", "The address the metric endpoint binds to.")
+	flag.IntVar(&port, "port", 9443, "The port the server binds to.")
 	flag.BoolVar(&enableLeaderElection, "enable-leader-election", false,
 		"Enable leader election for controller manager. Enabling this will ensure there is only one active controller manager.")
 	flag.BoolVar(&actualDelete, "actual-delete", false, "default: false; when true it will actually delete repos when the manifest is deleted.")
+	flag.StringVar(&config, "config", "", "Config file for loading configurations.")
 
 	flag.Parse()
 
@@ -61,15 +65,20 @@ func main() {
 		o.Development = true
 	}))
 
+	options := ctrl.Options{Scheme: scheme}
+	var err error
+
+	if config != "" {
+		options, err = ctrl.NewOptionsFromComponentConfig(scheme, config, &ctrlv1alpha1.DefaultControllerConfiguration{})
+		if err != nil {
+			setupLog.Error(err, "unable to update options")
+			os.Exit(1)
+		}
+	}
+
 	gitclient := git.New(context.Background(), os.Getenv("GITHUB_AUTH_TOKEN"))
 
-	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
-		Scheme:             scheme,
-		MetricsBindAddress: metricsAddr,
-		LeaderElection:     enableLeaderElection,
-		Port:               9443,
-		SyncPeriod:         &resyncTimeout,
-	})
+	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), options)
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
 		os.Exit(1)
