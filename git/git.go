@@ -21,6 +21,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/google/go-github/v28/github"
 	"go.hein.dev/github-controller/api/v1alpha1"
@@ -46,14 +47,20 @@ type client struct {
 }
 
 // New creates a new git client
-func New(ctx context.Context, token string) Client {
-	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
-	tc := oauth2.NewClient(ctx, ts)
-	return &client{
-		ts: ts,
-		tc: tc,
-		c:  github.NewClient(tc),
+func New(ctx context.Context, token string) (cl Client, err error) {
+	cli := &client{}
+	cli.ts = oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
+	cli.tc = oauth2.NewClient(ctx, cli.ts)
+
+	if url := os.Getenv("GITHUB_ENTERPRISE_URL"); url != "" {
+		if cli.c, err = github.NewEnterpriseClient(url, url, cli.tc); err != nil {
+			return cl, err
+		}
+	} else {
+		cli.c = github.NewClient(cli.tc)
 	}
+
+	return cli, nil
 }
 
 // GetRepo will reachout to Github and create the repo

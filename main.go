@@ -61,7 +61,11 @@ func main() {
 		o.Development = true
 	}))
 
-	gitclient := git.New(context.Background(), os.Getenv("GITHUB_AUTH_TOKEN"))
+	gitclient, err := git.New(context.Background(), os.Getenv("GITHUB_AUTH_TOKEN"))
+	if err != nil {
+		setupLog.Error(err, "unable to setup github client")
+		os.Exit(1)
+	}
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:             scheme,
