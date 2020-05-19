@@ -33,7 +33,7 @@ func (r *RepositoryReconciler) addFinalizer(ctx context.Context, repository *v1a
 		return err
 	}
 
-	return r.updateStatus(ctx, repository, v1alpha1.CreatingStatus)
+	return r.updateRepositoryStatus(ctx, repository, v1alpha1.CreatingStatus)
 }
 
 func (r *RepositoryReconciler) handleDeletion(ctx context.Context, repository *v1alpha1.Repository) error {
@@ -56,7 +56,7 @@ func (r *RepositoryReconciler) handleDeletion(ctx context.Context, repository *v
 	return nil
 }
 
-func (r *RepositoryReconciler) updateRepositoryStatus(ctx context.Context, ghrepo *github.Repository, repository *v1alpha1.Repository) error {
+func (r *RepositoryReconciler) updateRepositoryStatusDetails(ctx context.Context, ghrepo *github.Repository, repository *v1alpha1.Repository) error {
 	nsn := types.NamespacedName{Namespace: repository.Namespace, Name: repository.Name}
 
 	if err := retry.RetryOnConflict(retry.DefaultRetry, func() error {
@@ -81,7 +81,7 @@ func (r *RepositoryReconciler) updateRepositoryStatus(ctx context.Context, ghrep
 	return nil
 }
 
-func (r *RepositoryReconciler) updateStatus(ctx context.Context, repository *v1alpha1.Repository, status v1alpha1.StatusReason) error {
+func (r *RepositoryReconciler) updateRepositoryStatus(ctx context.Context, repository *v1alpha1.Repository, status v1alpha1.StatusReason) error {
 	nsn := types.NamespacedName{Namespace: repository.Namespace, Name: repository.Name}
 
 	if err := retry.RetryOnConflict(retry.DefaultRetry, func() error {

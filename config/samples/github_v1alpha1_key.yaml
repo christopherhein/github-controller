@@ -1,0 +1,16 @@
+apiVersion: github.go.hein.dev/v1alpha1
+kind: Key
+metadata:
+  name: key-sample
+spec:
+  readOnly: true
+  repositoryRef: repository-sample
+  secretTemplate:
+    nameOverride: key-sample-override
+    targetNamespace: default
+    labels:
+      label.a: one
+      label.b: two
+    annotations:
+      note.a: one
+      note.b: two

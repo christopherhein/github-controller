@@ -1,0 +1,24 @@
+# permissions for end users to edit keys.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: key-editor-role
+rules:
+- apiGroups:
+  - github.go.hein.dev
+  resources:
+  - keys
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - github.go.hein.dev
+  resources:
+  - keys/status
+  verbs:
+  - get

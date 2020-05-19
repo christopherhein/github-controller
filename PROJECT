@@ -4,4 +4,7 @@ resources:
 - group: github
   kind: Repository
   version: v1alpha1
+- group: github
+  kind: Key
+  version: v1alpha1
 version: "2"

@@ -1,0 +1,20 @@
+# permissions for end users to view keys.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: key-viewer-role
+rules:
+- apiGroups:
+  - github.go.hein.dev
+  resources:
+  - keys
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - github.go.hein.dev
+  resources:
+  - keys/status
+  verbs:
+  - get
