@@ -35,6 +35,12 @@ spec:
             secretKeyRef:
               name: github-controller-github-auth-token
               key: github-token
+        - name: GITHUB_ENTERPRISE_URL
+          valueFrom:
+            configMapKeyRef:
+              key: github-url
+              name: github-controller-github-enterprise-url
+              optional: true
         name: manager
         resources:
           limits:
