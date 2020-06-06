@@ -52,7 +52,7 @@ type KeyReconciler struct {
 
 // +kubebuilder:rbac:groups=github.go.hein.dev,resources=keys,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=github.go.hein.dev,resources=keys/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=,resources=secrets,verbs=get;list;watch;create
+// +kubebuilder:rbac:groups=core,resources=secrets,verbs=get;list;watch;create
 
 func (r *KeyReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	var requeueAfter = 2 * time.Second
