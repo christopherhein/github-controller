@@ -38,7 +38,7 @@ spec:
         - name: GITHUB_ENTERPRISE_URL
           valueFrom:
             configMapKeyRef:
-              key: github-url
+              key: github-enterprise-url
               name: github-controller-github-enterprise-url
               optional: true
         name: manager
