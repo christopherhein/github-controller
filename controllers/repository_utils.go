@@ -104,7 +104,7 @@ func (r *RepositoryReconciler) updateRepositoryStatus(ctx context.Context, repos
 }
 
 func isNotFound(r *github.Response) bool {
-	if r.StatusCode == http.StatusNotFound {
+	if r != nil && r.StatusCode == http.StatusNotFound {
 		return true
 	}
 	return false
